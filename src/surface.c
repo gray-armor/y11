@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <wayland-server.h>
 
@@ -25,7 +26,10 @@ static void
 y11_surface_protocol_attach(struct wl_client *client, struct wl_resource *resource,
                             struct wl_resource *buffer_resource, int32_t x, int32_t y)
 {
-  // TODO: implement
+  struct y11_surface *surface = wl_resource_get_user_data(resource);
+  surface->pending->buffer_resource = buffer_resource;
+  surface->pending->sx = x;
+  surface->pending->sy = y;
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"  // params are determined by the protocol.
@@ -59,11 +63,62 @@ y11_surface_protocol_set_input_region(struct wl_client *client, struct wl_resour
   // TODO: implement
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"  // params are determined by the protocol.
 static void
 y11_surface_protocol_commit(struct wl_client *client, struct wl_resource *resource)
 {
-  // TODO: implement
+  struct y11_surface *surface;
+
+  surface = wl_resource_get_user_data(resource);
+
+  if (surface->pending->buffer_resource != NULL) {
+    struct wl_shm_buffer *shm_buffer = wl_shm_buffer_get(surface->pending->buffer_resource);
+    uint32_t stride = wl_shm_buffer_get_stride(shm_buffer);
+    uint32_t width = wl_shm_buffer_get_width(shm_buffer);
+    uint32_t height = wl_shm_buffer_get_height(shm_buffer);
+    uint32_t format = wl_shm_buffer_get_format(shm_buffer);
+    uint32_t size = stride * height;
+    volatile unsigned char unused = 0;
+    uint8_t *data = wl_shm_buffer_get_data(shm_buffer);
+
+    fprintf(stdout, "Reading data [%d x %d] %d bytes (format: %d)\n", width, height, size, format);
+    fflush(stdout);
+
+    // print the shape to stdout
+    if (format == 0) {  // only support 32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian
+      FILE *file = stdout;
+      wl_shm_buffer_begin_access(shm_buffer);
+      for (uint32_t y = 0; y < height; y++) {
+        for (uint32_t x = 0; x < width; x++) {
+          uint8_t *b = data++;
+          uint8_t *g = data++;
+          uint8_t *r = data++;
+          uint8_t *a = data++;
+          if (y % 6 == 0 && x % 3 == 0) {
+            if (*a < (UINT8_MAX / 2)) {
+              fprintf(file, " ");
+            } else {
+              if (*r > *g && *r > *b) {
+                fprintf(file, "\x1b[31m|\x1b[39m");
+              } else if (*g > *r && *g > *b) {
+                fprintf(file, "\x1b[32m|\x1b[39m");
+              } else if (*b > *g && *b > *r) {
+                fprintf(file, "\x1b[34m|\x1b[39m");
+              } else {
+                fprintf(file, "|");
+              }
+            }
+          }
+        }
+        if (y % 6 == 0) fprintf(file, "\n");
+      }
+      wl_shm_buffer_end_access(shm_buffer);
+      fflush(file);
+    }
+
+    y11_surface_state_reset(surface->pending);
+  }
+
+  wl_signal_emit(&surface->commit_signal, surface);
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"  // params are determined by the protocol.
@@ -108,10 +163,14 @@ y11_surface_create(struct wl_client *client, struct y11_compositor *compositor, 
   struct y11_surface *surface;
   struct wl_resource *resource;
 
-  surface = malloc(sizeof *surface);
+  surface = zalloc(sizeof *surface);
   if (!surface) goto no_mem_surface;
 
+  wl_signal_init(&surface->commit_signal);
+
   surface->compositor = compositor;
+  surface->pending = y11_surface_state_create(client);
+  if (!surface->pending) goto fail;
 
   resource = wl_resource_create(client, &wl_surface_interface, version, id);
   if (!resource) goto no_mem_resource;
@@ -121,10 +180,13 @@ y11_surface_create(struct wl_client *client, struct y11_compositor *compositor, 
   return surface;
 
 no_mem_resource:
+  y11_surface_state_destroy(surface->pending);
   free(surface);
 
 no_mem_surface:
-  wl_resource_post_no_memory(resource);
+  wl_client_post_no_memory(client);
+
+fail:
   return NULL;
 }
 
@@ -132,5 +194,6 @@ void
 y11_surface_destroy(struct y11_surface *surface)
 {
   // Should I free the resource for this surface?
+  if (surface->pending) y11_surface_state_destroy(surface->pending);
   free(surface);
 }

@@ -63,22 +63,40 @@ static const struct xdg_surface_interface y11_xdg_surface_interface = {
     .ack_configure = y11_xdg_surface_protocol_ack_configure,
 };
 
+static void
+y11_xdg_surface_surface_commit_signal_handler(struct wl_listener *listener, void *data)
+{
+  struct y11_xdg_surface *xdg_surface;
+  uint32_t serial;
+
+  xdg_surface = wl_container_of(listener, xdg_surface, surface_commit_listener);
+  serial = wl_display_next_serial(xdg_surface->desktop_client->desktop->compositor->display);
+
+  xdg_surface_send_configure(xdg_surface->resource, serial);
+}
+
 struct y11_xdg_surface *
-y11_xdg_surface_create(struct wl_client *client, struct y11_surface *surface, uint32_t version, uint32_t id)
+y11_xdg_surface_create(struct wl_client *client, struct y11_surface *surface,
+                       struct y11_xdg_shell_desktop_client *desktop_client, uint32_t version, uint32_t id)
 {
   struct wl_resource *resource;
   struct y11_xdg_surface *xdg_surface;
 
-  xdg_surface = malloc(sizeof xdg_surface);
+  xdg_surface = zalloc(sizeof *xdg_surface);
   if (xdg_surface == NULL) goto no_mem_xdg_surface;
 
   resource = wl_resource_create(client, &xdg_surface_interface, version, id);
   if (resource == NULL) goto no_mem_resource;
 
+  xdg_surface->resource = resource;
   xdg_surface->surface = surface;
+  xdg_surface->desktop_client = desktop_client;
 
   wl_resource_set_implementation(resource, &y11_xdg_surface_interface, xdg_surface,
                                  y11_xdg_surface_handle_destroy);
+
+  xdg_surface->surface_commit_listener.notify = y11_xdg_surface_surface_commit_signal_handler;
+  wl_signal_add(&xdg_surface->surface->commit_signal, &xdg_surface->surface_commit_listener);
 
   return xdg_surface;
 

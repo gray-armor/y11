@@ -139,7 +139,7 @@ y11_xdg_toplevel_create(struct wl_client *client, struct y11_xdg_surface *xdg_su
   struct wl_resource *resource;
   struct y11_xdg_toplevel *xdg_toplevel;
 
-  xdg_toplevel = malloc(sizeof xdg_toplevel);
+  xdg_toplevel = zalloc(sizeof *xdg_toplevel);
   if (!xdg_toplevel) goto no_mem_xdg_toplevel;
 
   xdg_toplevel->surface = xdg_surface;

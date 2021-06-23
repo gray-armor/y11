@@ -17,7 +17,7 @@ main()
     return 1;  // TODO: Error log
   }
 
-  desktop = y11_xdg_shell_desktop_create(compositor->display);
+  desktop = y11_xdg_shell_desktop_create(compositor);
   if (!desktop) {
     return 1;  // TODO: Error log
   }

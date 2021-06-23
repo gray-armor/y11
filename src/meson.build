@@ -1,8 +1,10 @@
 source_files = [
   'main.c', 'y11.h',
   'compositor.c',
+  'surface-state.c',
   'surface.c',
   'output.c',
+  'region.c',
   'xdg-surface.c',
   'xdg-toplevel.c',
   'xdg-shell-desktop.c',

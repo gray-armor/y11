@@ -7,25 +7,26 @@
 static void
 y11_xdg_shell_desktop_bind(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 {
-#pragma GCC diagnostic ignored "-Wunused-variable"  // will use later
   struct y11_xdg_shell_desktop *desktop = data;
   struct y11_xdg_shell_desktop_client *desktop_client;
 
-  desktop_client = y11_xdg_shell_desktop_client_create(client, version, id);
+  desktop_client = y11_xdg_shell_desktop_client_create(client, desktop, version, id);
   if (!desktop_client) {
     // TODO: Error log
   }
 }
 
 struct y11_xdg_shell_desktop *
-y11_xdg_shell_desktop_create(struct wl_display *display)
+y11_xdg_shell_desktop_create(struct y11_compositor *compositor)
 {
   struct y11_xdg_shell_desktop *desktop;
 
-  desktop = malloc(sizeof desktop);
+  desktop = zalloc(sizeof *desktop);
   if (!desktop) goto no_mem_desktop;
 
-  if (!wl_global_create(display, &xdg_wm_base_interface, 1, desktop, y11_xdg_shell_desktop_bind))
+  desktop->compositor = compositor;
+
+  if (!wl_global_create(compositor->display, &xdg_wm_base_interface, 1, desktop, y11_xdg_shell_desktop_bind))
     goto fail_create_global;
 
   return desktop;
