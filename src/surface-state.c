@@ -22,6 +22,7 @@ y11_surface_state_create(struct wl_client *client)
   surface_state->buffer_resource = NULL;
   surface_state->sx = 0;
   surface_state->sy = 0;
+  surface_state->callback = NULL;
 
   return surface_state;
 

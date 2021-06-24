@@ -5,6 +5,7 @@ source_files = [
   'surface.c',
   'output.c',
   'region.c',
+  'callback.c',
   'xdg-surface.c',
   'xdg-toplevel.c',
   'xdg-shell-desktop.c',
