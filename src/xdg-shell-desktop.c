@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "xdg-shell-server-protocol.h"
@@ -11,7 +10,7 @@ y11_xdg_shell_desktop_bind(struct wl_client *client, void *data, uint32_t versio
   struct y11_xdg_shell_desktop_client *desktop_client;
 
   desktop_client = y11_xdg_shell_desktop_client_create(client, desktop, version, id);
-  if (!desktop_client) {
+  if (desktop_client == NULL) {
     // TODO: Error log
   }
 }
@@ -22,11 +21,12 @@ y11_xdg_shell_desktop_create(struct y11_compositor *compositor)
   struct y11_xdg_shell_desktop *desktop;
 
   desktop = zalloc(sizeof *desktop);
-  if (!desktop) goto no_mem_desktop;
+  if (desktop == NULL) goto no_mem_desktop;
 
   desktop->compositor = compositor;
 
-  if (!wl_global_create(compositor->display, &xdg_wm_base_interface, 1, desktop, y11_xdg_shell_desktop_bind))
+  if (wl_global_create(compositor->display, &xdg_wm_base_interface, 1, desktop, y11_xdg_shell_desktop_bind) ==
+      NULL)
     goto fail_create_global;
 
   return desktop;

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <wayland-server.h>
 
@@ -96,41 +96,43 @@ y11_surface_protocol_commit(struct wl_client *client, struct wl_resource *resour
     fprintf(stdout, "Reading data [%d x %d] %d bytes (format: %d)\n", width, height, size, format);
     fflush(stdout);
 
-    // print the shape to stdout
-
-    // Supported format
-    // 0. 32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian
-    // 1. 32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian
-    if (format == 0 || format == 1) {
-      FILE *file = stdout;
-      fprintf(file, "\x1b[0;0H");  // move cursor to (0, 0)
-      wl_shm_buffer_begin_access(shm_buffer);
-      for (uint32_t y = 0; y < height; y++) {
-        for (uint32_t x = 0; x < width; x++) {
-          uint8_t *b = data++;
-          uint8_t *g = data++;
-          uint8_t *r = data++;
-          uint8_t *a = data++;
-          if (y % 6 == 0 && x % 3 == 0) {
-            if (format == 0 && *a < (UINT8_MAX / 2)) {
-              fprintf(file, " ");
-            } else {
-              if (*r > *g && *r > *b) {
-                fprintf(file, "\x1b[31m|\x1b[39m");
-              } else if (*g > *r && *g > *b) {
-                fprintf(file, "\x1b[32m|\x1b[39m");
-              } else if (*b > *g && *b > *r) {
-                fprintf(file, "\x1b[34m|\x1b[39m");
+    char *NO_HEAD = getenv("NO_HEAD");
+    if (NO_HEAD == NULL || strcmp(NO_HEAD, "1")) {
+      // print the shape to stdout
+      // Supported format
+      // 0. 32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian
+      // 1. 32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian
+      if (format == 0 || format == 1) {
+        FILE *file = stdout;
+        fprintf(file, "\x1b[0;0H");  // move cursor to (0, 0)
+        wl_shm_buffer_begin_access(shm_buffer);
+        for (uint32_t y = 0; y < height; y++) {
+          for (uint32_t x = 0; x < width; x++) {
+            uint8_t *b = data++;
+            uint8_t *g = data++;
+            uint8_t *r = data++;
+            uint8_t *a = data++;
+            if (y % 6 == 0 && x % 3 == 0) {
+              if (format == 0 && *a < (UINT8_MAX / 2)) {
+                fprintf(file, " ");
               } else {
-                fprintf(file, "|");
+                if (*r > *g && *r > *b) {
+                  fprintf(file, "\x1b[31m|\x1b[39m");
+                } else if (*g > *r && *g > *b) {
+                  fprintf(file, "\x1b[32m|\x1b[39m");
+                } else if (*b > *g && *b > *r) {
+                  fprintf(file, "\x1b[34m|\x1b[39m");
+                } else {
+                  fprintf(file, "|");
+                }
               }
             }
           }
+          if (y % 6 == 0) fprintf(file, "\n");
         }
-        if (y % 6 == 0) fprintf(file, "\n");
+        wl_shm_buffer_end_access(shm_buffer);
+        fflush(file);
       }
-      wl_shm_buffer_end_access(shm_buffer);
-      fflush(file);
     }
 
     wl_buffer_send_release(surface->pending->buffer_resource);
@@ -189,10 +191,10 @@ y11_surface_create(struct wl_client *client, struct y11_compositor *compositor, 
   struct y11_surface_state *surface_state;
 
   surface_state = y11_surface_state_create(client);
-  if (!surface_state) goto fail;
+  if (surface_state == NULL) goto fail;
 
   surface = zalloc(sizeof *surface);
-  if (!surface) goto no_mem_surface;
+  if (surface == NULL) goto no_mem_surface;
 
   wl_signal_init(&surface->commit_signal);
 
@@ -200,7 +202,7 @@ y11_surface_create(struct wl_client *client, struct y11_compositor *compositor, 
   surface->pending = surface_state;
 
   resource = wl_resource_create(client, &wl_surface_interface, version, id);
-  if (!resource) goto no_mem_resource;
+  if (resource == NULL) goto no_mem_resource;
 
   wl_resource_set_implementation(resource, &surface_interface, surface, y11_surface_handle_destroy);
 

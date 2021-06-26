@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "xdg-shell-server-protocol.h"
@@ -140,12 +139,12 @@ y11_xdg_toplevel_create(struct wl_client *client, struct y11_xdg_surface *xdg_su
   struct y11_xdg_toplevel *xdg_toplevel;
 
   xdg_toplevel = zalloc(sizeof *xdg_toplevel);
-  if (!xdg_toplevel) goto no_mem_xdg_toplevel;
+  if (xdg_toplevel == NULL) goto no_mem_xdg_toplevel;
 
   xdg_toplevel->surface = xdg_surface;
 
   resource = wl_resource_create(client, &xdg_toplevel_interface, version, id);
-  if (!resource) goto no_mem_resource;
+  if (resource == NULL) goto no_mem_resource;
 
   wl_resource_set_implementation(resource, &y11_xdg_toplevel_interface, xdg_toplevel,
                                  y11_xdg_toplevel_handle_destroy);

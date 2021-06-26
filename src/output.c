@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "y11.h"
@@ -21,7 +20,7 @@ y11_output_bind(struct wl_client *client, void *data, uint32_t version, uint32_t
   struct wl_resource *resource;
 
   resource = wl_resource_create(client, &wl_output_interface, version, id);
-  if (!resource) goto no_mem_resource;
+  if (resource == NULL) goto no_mem_resource;
 
   wl_resource_set_implementation(resource, &output_interface, output, NULL);
 
@@ -42,9 +41,10 @@ y11_output_create(struct wl_display *display)
   struct y11_output *output;
 
   output = zalloc(sizeof *output);
-  if (!output) goto no_mem_output;
+  if (output == NULL) goto no_mem_output;
 
-  if (!wl_global_create(display, &wl_output_interface, 3, output, y11_output_bind)) goto fail_create_global;
+  if (wl_global_create(display, &wl_output_interface, 3, output, y11_output_bind) == NULL)
+    goto fail_create_global;
 
   return output;
 

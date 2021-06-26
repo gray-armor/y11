@@ -12,6 +12,22 @@ zalloc(size_t size)
   return calloc(1, size);
 }
 
+/* data device manager */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_data_device_manager {
+};
+
+struct y11_data_device_manager *
+y11_data_device_manager_create(struct wl_display *display);
+
+/* seat */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_seat {
+};
+
+struct y11_seat *
+y11_seat_create(struct wl_display *display);
+
 /* compositor */
 struct y11_compositor {
   struct wl_display *display;
@@ -22,7 +38,6 @@ struct y11_compositor *
 y11_compositor_create();
 
 /* callback */
-#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
 struct y11_callback {
   struct wl_resource *resource;
 };
