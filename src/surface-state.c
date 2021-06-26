@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "y11.h"
@@ -17,7 +16,7 @@ y11_surface_state_create(struct wl_client *client)
   struct y11_surface_state *surface_state;
 
   surface_state = zalloc(sizeof *surface_state);
-  if (!surface_state) goto no_mem_surface_state;
+  if (surface_state == NULL) goto no_mem_surface_state;
 
   surface_state->buffer_resource = NULL;
   surface_state->sx = 0;

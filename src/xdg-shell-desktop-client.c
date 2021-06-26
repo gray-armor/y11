@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "xdg-shell-server-protocol.h"
@@ -45,7 +44,7 @@ y11_xdg_shell_desktop_client_protocol_get_xdg_surface(struct wl_client *client, 
 
   xdg_surface =
       y11_xdg_surface_create(client, surface, desktop_client, wl_resource_get_version(resource), id);
-  if (!xdg_surface) {
+  if (xdg_surface == NULL) {
     // TODO: Error log
   }
 }
@@ -73,7 +72,7 @@ y11_xdg_shell_desktop_client_create(struct wl_client *client, struct y11_xdg_she
   struct wl_resource *resource;
 
   desktop_client = zalloc(sizeof *desktop_client);
-  if (!desktop_client) goto no_mem_desktop_client;
+  if (desktop_client == NULL) goto no_mem_desktop_client;
 
   desktop_client->desktop = desktop;
 

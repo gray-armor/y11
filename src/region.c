@@ -49,10 +49,10 @@ y11_region_create(struct wl_client *client, uint32_t id)
   struct wl_resource *resource;
 
   region = zalloc(sizeof *region);
-  if (!region) goto no_mem_region;
+  if (region == NULL) goto no_mem_region;
 
   resource = wl_resource_create(client, &wl_region_interface, 1, id);
-  if (!resource) goto no_mem_resource;
+  if (resource == NULL) goto no_mem_resource;
 
   wl_resource_set_implementation(resource, &y11_region_interface, region, y11_region_handle_destroy);
 

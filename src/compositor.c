@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "y11.h"
@@ -12,7 +11,7 @@ y11_compositor_protocol_create_surface(struct wl_client *client, struct wl_resou
   compositor = wl_resource_get_user_data(resource);
 
   surface = y11_surface_create(client, compositor, wl_resource_get_version(resource), id);
-  if (!surface) {
+  if (surface == NULL) {
     // TODO: Error log
   }
 }
@@ -24,7 +23,7 @@ y11_compositor_protocol_create_region(struct wl_client *client, struct wl_resour
   struct y11_region *region;
 
   region = y11_region_create(client, id);
-  if (!region) {
+  if (region == NULL) {
     // TODO: Error log
   }
 }
@@ -64,7 +63,8 @@ y11_compositor_create()
 
   compositor->display = display;
 
-  if (!wl_global_create(display, &wl_compositor_interface, 4, compositor, y11_compositor_bind)) goto fail;
+  if (wl_global_create(display, &wl_compositor_interface, 4, compositor, y11_compositor_bind) == NULL)
+    goto fail;
 
   return compositor;
 

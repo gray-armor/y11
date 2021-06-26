@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <wayland-server.h>
 
 #include "y11.h"
