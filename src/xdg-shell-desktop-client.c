@@ -75,9 +75,13 @@ y11_xdg_shell_desktop_client_create(struct wl_client *client, struct y11_xdg_she
   if (desktop_client == NULL) goto no_mem_desktop_client;
 
   desktop_client->desktop = desktop;
+  desktop_client->client = client;
+  wl_list_init(&desktop_client->xdg_surfaces);
 
   resource = wl_resource_create(client, &xdg_wm_base_interface, version, id);
   if (resource == NULL) goto no_mem_resource;
+
+  wl_list_insert(&desktop->clients, &desktop_client->link);
 
   wl_resource_set_implementation(resource, &y11_xdg_shell_desktop_interface, desktop_client,
                                  y11_surface_handle_destroy);
@@ -95,5 +99,6 @@ no_mem_desktop_client:
 static void
 y11_xdg_shell_desktop_client_destroy(struct y11_xdg_shell_desktop_client *desktop_client)
 {
+  wl_list_remove(&desktop_client->link);
   free(desktop_client);
 }

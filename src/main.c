@@ -29,12 +29,12 @@ main()
     return 1;  // TODO: Error log
   }
 
-  seat = y11_seat_create(compositor->display);
+  seat = y11_seat_create(compositor);
   if (seat == NULL) {
     return 1;  // TODO: Error log
   }
 
-  output = y11_output_create(compositor->display);
+  output = y11_output_create(compositor);
   if (output == NULL) {
     return 1;  // TODO: Error log
   }

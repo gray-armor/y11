@@ -20,18 +20,42 @@ struct y11_data_device_manager {
 struct y11_data_device_manager *
 y11_data_device_manager_create(struct wl_display *display);
 
-/* seat */
+/* data device */
 #pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_data_device {
+};
+
+struct y11_data_device *
+y11_data_device_create(struct wl_client *client, uint32_t id);
+
+/* seat */
 struct y11_seat {
+  struct y11_compositor *compositor;
+  struct wl_list pointer_clients;
 };
 
 struct y11_seat *
-y11_seat_create(struct wl_display *display);
+y11_seat_create(struct y11_compositor *compositor);
+
+/* pointer */
+struct y11_pointer_client {
+  struct wl_list link;
+  struct wl_resource *resource;
+  struct y11_seat *seat;
+  struct wl_client *client;
+};
+
+struct y11_pointer_client *
+y11_pointer_client_create(struct wl_client *client, struct y11_seat *seat, uint32_t id);
 
 /* compositor */
 struct y11_compositor {
   struct wl_display *display;
   struct wl_resource *resource;
+
+  // need to annotate that this can be NULL
+  struct y11_output *output;
+  struct y11_xdg_shell_desktop *desktop;
 };
 
 struct y11_compositor *
@@ -64,6 +88,7 @@ y11_surface_state_destroy(struct y11_surface_state *surface_state);
 
 /* surface */
 struct y11_surface {
+  struct wl_resource *resource;
   struct y11_compositor *compositor;
   struct wl_signal commit_signal;
   struct y11_surface_state *pending;
@@ -76,25 +101,30 @@ y11_surface_create(struct wl_client *client, struct y11_compositor *compositor, 
 void
 y11_surface_destroy(struct y11_surface *surface);
 
-/* xdg shell desktop */
-struct y11_xdg_shell_desktop {
-  struct y11_compositor *compositor;
-};
-
-struct y11_xdg_shell_desktop *
-y11_xdg_shell_desktop_create(struct y11_compositor *compositor);
-
 /* xdg shell desktop client */
 struct y11_xdg_shell_desktop_client {
+  struct wl_list link;
   struct y11_xdg_shell_desktop *desktop;
+  struct wl_client *client;
+  struct wl_list xdg_surfaces;
 };
 
 struct y11_xdg_shell_desktop_client *
 y11_xdg_shell_desktop_client_create(struct wl_client *client, struct y11_xdg_shell_desktop *desktop,
                                     uint32_t version, uint32_t id);
 
+/* xdg shell desktop */
+struct y11_xdg_shell_desktop {
+  struct y11_compositor *compositor;
+  struct wl_list clients;
+};
+
+struct y11_xdg_shell_desktop *
+y11_xdg_shell_desktop_create(struct y11_compositor *compositor);
+
 /* xdg surface */
 struct y11_xdg_surface {
+  struct wl_list link;
   struct wl_resource *resource;
   struct y11_surface *surface;
   struct y11_xdg_shell_desktop_client *desktop_client;
@@ -115,12 +145,22 @@ y11_xdg_toplevel_create(struct wl_client *client, struct y11_xdg_surface *xdg_su
                         uint32_t id);
 
 /* output */
-#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
 struct y11_output {
+  struct wl_list clients;
 };
 
 struct y11_output *
-y11_output_create(struct wl_display *display);
+y11_output_create(struct y11_compositor *compositor);
+
+/* output client*/
+struct y11_output_client {
+  struct wl_list link;
+  struct wl_client *client;
+  struct wl_resource *resource;
+};
+
+struct y11_output_client *
+y11_output_client_create(struct wl_client *client, struct y11_output *output, uint32_t version, uint32_t id);
 
 /* region */
 #pragma GCC diagnostic ignored "-Wpedantic"  // will add later

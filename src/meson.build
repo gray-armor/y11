@@ -2,9 +2,12 @@ source_files = [
   'main.c', 'y11.h',
   'callback.c',
   'compositor.c',
-  'data_device_manager.c',
+  'data-device-manager.c',
+  'data-device.c',
   'helpers.h',
   'output.c',
+  'output-client.c',
+  'pointer-client.c',
   'region.c',
   'seat.c',
   'surface-state.c',
@@ -16,6 +19,7 @@ source_files = [
 ]
 
 wl_server = dependency('wayland-server')
+libinput = dependency('libinput')
 
 scanner = dependency('wayland-scanner')
 scanner_path = scanner.get_pkgconfig_variable('wayland_scanner')
@@ -41,5 +45,5 @@ executable(
   meson.project_name(),
   source_files,
   install : true,
-  dependencies : [wl_server],
+  dependencies : [wl_server, libinput],
 )

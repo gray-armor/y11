@@ -13,7 +13,13 @@ static void
 y11_data_device_manager_protocol_get_data_device(struct wl_client *client, struct wl_resource *resource,
                                                  uint32_t id, struct wl_resource *seat_resource)
 {
-  // TODO: implementation
+  struct y11_data_device *data_device;
+
+  data_device = y11_data_device_create(client, id);
+  if (data_device == NULL) {
+    // TODO: Error log
+    return;
+  }
 }
 
 static const struct wl_data_device_manager_interface y11_data_device_manager_interface = {

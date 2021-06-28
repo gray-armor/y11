@@ -97,6 +97,8 @@ y11_xdg_surface_create(struct wl_client *client, struct y11_surface *surface,
   xdg_surface->surface_commit_listener.notify = y11_xdg_surface_surface_commit_signal_handler;
   wl_signal_add(&xdg_surface->surface->commit_signal, &xdg_surface->surface_commit_listener);
 
+  wl_list_insert(&desktop_client->xdg_surfaces, &xdg_surface->link);
+
   return xdg_surface;
 
 no_mem_resource:
@@ -110,5 +112,6 @@ no_mem_xdg_surface:
 static void
 y11_xdg_surface_destroy(struct y11_xdg_surface *surface)
 {
+  wl_list_remove(&surface->link);
   free(surface);
 }

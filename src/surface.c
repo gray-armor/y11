@@ -198,11 +198,12 @@ y11_surface_create(struct wl_client *client, struct y11_compositor *compositor, 
 
   wl_signal_init(&surface->commit_signal);
 
-  surface->compositor = compositor;
-  surface->pending = surface_state;
-
   resource = wl_resource_create(client, &wl_surface_interface, version, id);
   if (resource == NULL) goto no_mem_resource;
+
+  surface->compositor = compositor;
+  surface->pending = surface_state;
+  surface->resource = resource;
 
   wl_resource_set_implementation(resource, &surface_interface, surface, y11_surface_handle_destroy);
 

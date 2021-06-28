@@ -62,6 +62,8 @@ y11_compositor_create()
   display = wl_display_create();
 
   compositor->display = display;
+  compositor->output = NULL;
+  compositor->desktop = NULL;
 
   if (wl_global_create(display, &wl_compositor_interface, 4, compositor, y11_compositor_bind) == NULL)
     goto fail;

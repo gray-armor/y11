@@ -23,11 +23,14 @@ y11_xdg_shell_desktop_create(struct y11_compositor *compositor)
   desktop = zalloc(sizeof *desktop);
   if (desktop == NULL) goto no_mem_desktop;
 
-  desktop->compositor = compositor;
-
   if (wl_global_create(compositor->display, &xdg_wm_base_interface, 1, desktop, y11_xdg_shell_desktop_bind) ==
       NULL)
     goto fail_create_global;
+
+  desktop->compositor = compositor;
+  wl_list_init(&desktop->clients);
+
+  compositor->desktop = desktop;
 
   return desktop;
 
