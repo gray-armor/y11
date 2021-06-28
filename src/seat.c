@@ -6,12 +6,14 @@ static void
 y11_seat_protocol_get_pointer(struct wl_client *client, struct wl_resource *resource, uint32_t id)
 {
   struct y11_seat *seat;
-  struct y11_pointer_client *pointer;
+  struct y11_pointer *pointer;
+  struct y11_pointer_client *pointer_client;
 
   seat = wl_resource_get_user_data(resource);
+  pointer = seat->pointer;
 
-  pointer = y11_pointer_client_create(client, seat, id);
-  if (pointer == NULL) {
+  pointer_client = y11_pointer_client_create(client, pointer, id);
+  if (pointer_client == NULL) {
     // TODO: Error log
     return;
   }
@@ -78,11 +80,13 @@ y11_seat_create(struct y11_compositor *compositor)
   if (seat == NULL) goto fail;
 
   seat->compositor = compositor;
-  wl_list_init(&seat->pointer_clients);
+  seat->pointer = NULL;
 
   if (wl_global_create(compositor->display, &wl_seat_interface, MIN(wl_seat_interface.version, 7), seat,
                        y11_seat_bind) == NULL)
     goto fail;
+
+  if (y11_pointer_create(seat) == NULL) goto fail;
 
   return seat;
 

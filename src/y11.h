@@ -28,25 +28,36 @@ struct y11_data_device {
 struct y11_data_device *
 y11_data_device_create(struct wl_client *client, uint32_t id);
 
+struct y11_pointer;
+
 /* seat */
 struct y11_seat {
   struct y11_compositor *compositor;
-  struct wl_list pointer_clients;
+  struct y11_pointer *pointer;
 };
 
 struct y11_seat *
 y11_seat_create(struct y11_compositor *compositor);
 
 /* pointer */
+struct y11_pointer {
+  struct wl_list clients;
+  struct y11_seat *seat;
+};
+
+struct y11_pointer *
+y11_pointer_create(struct y11_seat *seat);
+
+/* pointer client */
 struct y11_pointer_client {
   struct wl_list link;
   struct wl_resource *resource;
-  struct y11_seat *seat;
+  struct y11_pointer *pointer;
   struct wl_client *client;
 };
 
 struct y11_pointer_client *
-y11_pointer_client_create(struct wl_client *client, struct y11_seat *seat, uint32_t id);
+y11_pointer_client_create(struct wl_client *client, struct y11_pointer *pointer, uint32_t id);
 
 /* compositor */
 struct y11_compositor {

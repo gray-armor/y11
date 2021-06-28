@@ -7,6 +7,7 @@ source_files = [
   'helpers.h',
   'output.c',
   'output-client.c',
+  'pointer.c',
   'pointer-client.c',
   'region.c',
   'seat.c',

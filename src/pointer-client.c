@@ -2,7 +2,7 @@
 #include "y11.h"
 
 static void
-y11_pointer_client_destroy(struct y11_pointer_client *pointer);
+y11_pointer_client_destroy(struct y11_pointer_client *pointer_client);
 
 static void
 y11_pointer_client_handle_destroy(struct wl_resource *resource)
@@ -36,39 +36,39 @@ static const struct wl_pointer_interface y11_pointer_client_interface = {
 };
 
 struct y11_pointer_client *
-y11_pointer_client_create(struct wl_client *client, struct y11_seat *seat, uint32_t id)
+y11_pointer_client_create(struct wl_client *client, struct y11_pointer *pointer, uint32_t id)
 {
-  struct y11_pointer_client *pointer;
+  struct y11_pointer_client *pointer_client;
   struct wl_resource *resource;
 
-  pointer = zalloc(sizeof *pointer);
-  if (pointer == NULL) goto no_mem_pointer;
+  pointer_client = zalloc(sizeof *pointer_client);
+  if (pointer_client == NULL) goto no_mem_pointer_client;
 
   resource = wl_resource_create(client, &wl_pointer_interface, MIN(wl_pointer_interface.version, 7), id);
   if (resource == NULL) goto no_mem_resource;
 
-  pointer->resource = resource;
-  pointer->seat = seat;
-  pointer->client = client;
+  pointer_client->resource = resource;
+  pointer_client->pointer = pointer;
+  pointer_client->client = client;
 
-  wl_list_insert(&seat->pointer_clients, &pointer->link);
+  wl_list_insert(&pointer->clients, &pointer_client->link);
 
-  wl_resource_set_implementation(resource, &y11_pointer_client_interface, pointer,
+  wl_resource_set_implementation(resource, &y11_pointer_client_interface, pointer_client,
                                  y11_pointer_client_handle_destroy);
 
-  return pointer;
+  return pointer_client;
 
 no_mem_resource:
-  free(pointer);
+  free(pointer_client);
 
-no_mem_pointer:
+no_mem_pointer_client:
   wl_client_post_no_memory(client);
   return NULL;
 }
 
 static void
-y11_pointer_client_destroy(struct y11_pointer_client *pointer)
+y11_pointer_client_destroy(struct y11_pointer_client *pointer_client)
 {
-  wl_list_remove(&pointer->link);
-  free(pointer);
+  wl_list_remove(&pointer_client->link);
+  free(pointer_client);
 }
