@@ -19,8 +19,12 @@ source_files = [
   'xdg-shell-desktop-client.c',
 ]
 
-wl_server = dependency('wayland-server')
-libinput = dependency('libinput')
+
+dependencies = [
+  dependency('wayland-server'),
+  dependency('libinput'),
+  dependency('libudev'),
+]
 
 scanner = dependency('wayland-scanner')
 scanner_path = scanner.get_pkgconfig_variable('wayland_scanner')
@@ -46,5 +50,5 @@ executable(
   meson.project_name(),
   source_files,
   install : true,
-  dependencies : [wl_server, libinput],
+  dependencies : dependencies,
 )

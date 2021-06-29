@@ -1,6 +1,8 @@
 #ifndef Y11_H
 #define Y11_H
 
+#include <libinput.h>
+#include <libudev.h>
 #include <stdlib.h>
 #include <wayland-server.h>
 
@@ -43,6 +45,10 @@ y11_seat_create(struct y11_compositor *compositor);
 struct y11_pointer {
   struct wl_list clients;
   struct y11_seat *seat;
+  struct udev *udev;
+  struct libinput *libinput;
+  struct wl_event_source *libinput_source;
+  int counter;
 };
 
 struct y11_pointer *
@@ -54,6 +60,8 @@ struct y11_pointer_client {
   struct wl_resource *resource;
   struct y11_pointer *pointer;
   struct wl_client *client;
+  uint32_t serial;
+  bool enter;
 };
 
 struct y11_pointer_client *

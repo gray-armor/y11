@@ -50,6 +50,8 @@ y11_pointer_client_create(struct wl_client *client, struct y11_pointer *pointer,
   pointer_client->resource = resource;
   pointer_client->pointer = pointer;
   pointer_client->client = client;
+  pointer_client->serial = 1;
+  pointer_client->enter = false;
 
   wl_list_insert(&pointer->clients, &pointer_client->link);
 

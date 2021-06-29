@@ -138,8 +138,10 @@ y11_surface_protocol_commit(struct wl_client *client, struct wl_resource *resour
     wl_buffer_send_release(surface->pending->buffer_resource);
     struct timeval now;
     gettimeofday(&now, NULL);
-    wl_callback_send_done(surface->pending->callback->resource, now.tv_sec * 1000 + now.tv_usec / 1000);
-    wl_resource_destroy(surface->pending->callback->resource);
+    if (surface->pending->callback != NULL) {
+      wl_callback_send_done(surface->pending->callback->resource, now.tv_sec * 1000 + now.tv_usec / 1000);
+      wl_resource_destroy(surface->pending->callback->resource);
+    }
 
     y11_surface_state_reset(surface->pending);
   }
