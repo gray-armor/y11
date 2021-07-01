@@ -9,6 +9,7 @@ main()
   struct y11_xdg_shell_desktop *desktop;
   struct y11_data_device_manager *device_manager;
   struct y11_seat *seat;
+  struct y11_shell *shell;
   struct y11_zxdg_output_manager *output_manager;
   struct y11_output *output;
   const char *socket;
@@ -32,6 +33,11 @@ main()
 
   seat = y11_seat_create(compositor);
   if (seat == NULL) {
+    return 1;  // TODO: Error log
+  }
+
+  shell = y11_shell_create(compositor);
+  if (shell == NULL) {
     return 1;  // TODO: Error log
   }
 

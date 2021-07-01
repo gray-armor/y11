@@ -111,11 +111,13 @@ y11_surface_protocol_commit(struct wl_client *client, struct wl_resource *resour
             uint8_t *g = data++;
             uint8_t *r = data++;
             uint8_t *a = data++;
-            if (y % 6 == 0 && x % 3 == 0) {
+            if (y % 12 == 0 && x % 6 == 0) {
               if (format == 0 && *a < (UINT8_MAX / 2)) {
                 fprintf(file, " ");
               } else {
-                if (*r > *g && *r > *b) {
+                if (*r < 100 && *g < 100 && *b < 100) {
+                  fprintf(file, " ");
+                } else if (*r > *g && *r > *b) {
                   fprintf(file, "\x1b[31m|\x1b[39m");
                 } else if (*g > *r && *g > *b) {
                   fprintf(file, "\x1b[32m|\x1b[39m");
@@ -127,7 +129,7 @@ y11_surface_protocol_commit(struct wl_client *client, struct wl_resource *resour
               }
             }
           }
-          if (y % 6 == 0) fprintf(file, "\n");
+          if (y % 12 == 0) fprintf(file, "\n");
         }
         wl_shm_buffer_end_access(shm_buffer);
         fflush(file);

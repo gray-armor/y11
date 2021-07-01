@@ -198,12 +198,35 @@ struct y11_zxdg_output_manager *
 y11_zxdg_output_manager_create(struct y11_compositor *compositor);
 
 /* xdg output */
-#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
 struct y11_xdg_output {
   struct wl_resource *resource;
 };
 
 struct y11_xdg_output *
 y11_xdg_output_create(struct wl_client *client, uint32_t id);
+
+/* shell */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_shell {
+};
+
+struct y11_shell *
+y11_shell_create(struct y11_compositor *compositor);
+
+/* shell client */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_shell_client {
+};
+
+struct y11_shell_client *
+y11_shell_client_create(struct wl_client *client, uint32_t version, uint32_t id);
+
+/* shell surface */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_shell_surface {
+};
+
+struct y11_shell_surface *
+y11_shell_surface_create(struct wl_client *client, uint32_t id);
 
 #endif  // Y11_H
