@@ -90,7 +90,6 @@ y11_surface_protocol_commit(struct wl_client *client, struct wl_resource *resour
     uint32_t height = wl_shm_buffer_get_height(shm_buffer);
     uint32_t format = wl_shm_buffer_get_format(shm_buffer);
     uint32_t size = stride * height;
-    volatile unsigned char unused = 0;
     uint8_t *data = wl_shm_buffer_get_data(shm_buffer);
 
     fprintf(stdout, "Reading data [%d x %d] %d bytes (format: %d)\n", width, height, size, format);

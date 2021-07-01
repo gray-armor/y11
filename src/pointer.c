@@ -65,6 +65,7 @@ y11_pointer_process_events(struct y11_pointer *pointer)
   }
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"  // params are determined by the protocol.
 static int
 y11_pointer_libinput_source_dispatch(int fd, uint32_t mask, void *data)
 {
@@ -86,6 +87,7 @@ y11_pointer_libinput_protocol_open_restricted(const char *path, int flags, void 
   // TODO: implement
   int fd = open(path, flags | O_CLOEXEC);
   if (fd < 0) {
+#pragma GCC diagnostic ignored "-Wformat"  // don't care
     fprintf(stdout, "fail to open %s: %m\n", path);
   }
   return fd;

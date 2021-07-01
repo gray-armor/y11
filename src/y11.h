@@ -189,4 +189,21 @@ struct y11_region {
 struct y11_region *
 y11_region_create(struct wl_client *client, uint32_t id);
 
+/* zxdg output manager */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_zxdg_output_manager {
+};
+
+struct y11_zxdg_output_manager *
+y11_zxdg_output_manager_create(struct y11_compositor *compositor);
+
+/* xdg output */
+#pragma GCC diagnostic ignored "-Wpedantic"  // will add later
+struct y11_xdg_output {
+  struct wl_resource *resource;
+};
+
+struct y11_xdg_output *
+y11_xdg_output_create(struct wl_client *client, uint32_t id);
+
 #endif  // Y11_H
