@@ -5,10 +5,14 @@
 #include <sys/epoll.h>
 #include <wayland-client.h>
 
+#include "compositor.h"
+#include "seat.h"
+
 struct y11_client_app {
   struct wl_display *display;
   struct wl_registry *registry;
-  struct wl_compositor *compositor;
+  struct y11_client_compositor *compositor;
+  struct y11_client_seat *seat;
 
   struct epoll_event epoll_event;
   int epoll_fd;

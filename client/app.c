@@ -15,7 +15,13 @@ registry_global(void* data, struct wl_registry* registry, uint32_t id, const cha
 {
   struct y11_client_app* self = data;
   if (strcmp(interface, "wl_compositor") == 0) {
-    self->compositor = wl_registry_bind(registry, id, &wl_compositor_interface, version);
+    struct wl_compositor* proxy;
+    proxy = wl_registry_bind(registry, id, &wl_compositor_interface, version);
+    self->compositor = y11_client_compositor_create(proxy);
+  } else if (strcmp(interface, "wl_seat") == 0) {
+    struct wl_seat* proxy;
+    proxy = wl_registry_bind(registry, id, &wl_seat_interface, version);
+    self->seat = y11_client_seat_create(proxy);
   }
 }
 
@@ -105,7 +111,7 @@ y11_client_app_create(struct wl_display* display)
   wl_display_dispatch(display);
   wl_display_roundtrip(display);
 
-  if (self->compositor == NULL) goto err_registry;
+  if (self->compositor == NULL || self->seat == NULL) goto err_globals;
 
   self->epoll_event.data.ptr = self;
   self->epoll_event.events = EPOLLIN;
@@ -114,7 +120,9 @@ y11_client_app_create(struct wl_display* display)
 
   return self;
 
-err_registry:
+err_globals:
+  if (self->seat) y11_client_seat_destroy(self->seat);
+  if (self->compositor) y11_client_compositor_destroy(self->compositor);
   wl_registry_destroy(self->registry);
 
 err_close:
@@ -130,6 +138,8 @@ err:
 void
 y11_client_app_destroy(struct y11_client_app* self)
 {
+  y11_client_seat_destroy(self->seat);
+  y11_client_compositor_destroy(self->compositor);
   wl_registry_destroy(self->registry);
   close(self->epoll_fd);
   free(self);
