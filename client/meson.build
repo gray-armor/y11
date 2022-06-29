@@ -1,5 +1,6 @@
 client_srcs = [
-  'main.c'
+  'app.c',
+  'main.c',
 ]
 
 client_deps = [
