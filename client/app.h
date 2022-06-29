@@ -7,6 +7,8 @@
 
 struct y11_client_app {
   struct wl_display *display;
+  struct wl_registry *registry;
+  struct wl_compositor *compositor;
 
   struct epoll_event epoll_event;
   int epoll_fd;
@@ -14,7 +16,7 @@ struct y11_client_app {
 };
 
 int
-y11_client_app_poll(struct y11_client_app *self);
+y11_client_app_run(struct y11_client_app *self);
 
 struct y11_client_app *
 y11_client_app_create(struct wl_display *dsiplay);

@@ -26,9 +26,7 @@ main()
 
   wl_display_flush(display);
 
-  while (app->running) {
-    if (y11_client_app_poll(app) != 0) goto err_app;
-  }
+  if (y11_client_app_run(app) != 0) goto err_app;
 
   status = EXIT_SUCCESS;
 

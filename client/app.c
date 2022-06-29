@@ -4,8 +4,33 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <wayland-client.h>
+
+static void
+registry_global(void* data, struct wl_registry* registry, uint32_t id, const char* interface,
+                uint32_t version)
+{
+  struct y11_client_app* self = data;
+  if (strcmp(interface, "wl_compositor") == 0) {
+    self->compositor = wl_registry_bind(registry, id, &wl_compositor_interface, version);
+  }
+}
+
+static void
+registry_global_remove(void* data, struct wl_registry* wl_registry, uint32_t name)
+{
+  (void)data;
+  (void)wl_registry;
+  (void)name;
+}
+
+static const struct wl_registry_listener registry_listener = {
+    .global = registry_global,
+    .global_remove = registry_global_remove,
+};
 
 static int
 y11_client_app_dispatch(struct y11_client_app* self)
@@ -22,7 +47,7 @@ y11_client_app_dispatch(struct y11_client_app* self)
   return 0;
 }
 
-int
+static int
 y11_client_app_poll(struct y11_client_app* self)
 {
   int epoll_count;
@@ -34,6 +59,22 @@ y11_client_app_poll(struct y11_client_app* self)
     assert(events[i].data.ptr == self);
     ret = y11_client_app_dispatch(self);
     if (ret != 0) return ret;
+  }
+
+  return 0;
+}
+
+int
+y11_client_app_run(struct y11_client_app* self)
+{
+  if (epoll_ctl(self->epoll_fd, EPOLL_CTL_ADD, wl_display_get_fd(self->display), &self->epoll_event) == -1) {
+    fprintf(stderr, "Failed to add wayland event fd to epoll fd\n");
+    return -1;
+  }
+
+  self->running = true;
+  while (self->running) {
+    if (y11_client_app_poll(self) != 0) return -1;
   }
 
   return 0;
@@ -56,18 +97,25 @@ y11_client_app_create(struct wl_display* display)
     goto err_free;
   }
 
+  self->registry = wl_display_get_registry(display);
+  if (self->registry == NULL) goto err_close;
+
+  wl_registry_add_listener(self->registry, &registry_listener, self);
+
+  wl_display_dispatch(display);
+  wl_display_roundtrip(display);
+
+  if (self->compositor == NULL) goto err_registry;
+
   self->epoll_event.data.ptr = self;
   self->epoll_event.events = EPOLLIN;
-
-  if (epoll_ctl(self->epoll_fd, EPOLL_CTL_ADD, wl_display_get_fd(display), &self->epoll_event) == -1) {
-    fprintf(stderr, "Failed to add wayland event fd to epoll fd\n");
-    goto err_close;
-  }
-
   self->display = display;
-  self->running = true;
+  self->running = false;
 
   return self;
+
+err_registry:
+  wl_registry_destroy(self->registry);
 
 err_close:
   close(self->epoll_fd);
@@ -82,5 +130,7 @@ err:
 void
 y11_client_app_destroy(struct y11_client_app* self)
 {
+  wl_registry_destroy(self->registry);
+  close(self->epoll_fd);
   free(self);
 }
