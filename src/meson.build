@@ -2,33 +2,21 @@ source_files = [
   'main.c', 'y11.h',
   'callback.c',
   'compositor.c',
-  'data-device-manager.c',
-  'data-device.c',
   'helpers.h',
-  'output.c',
-  'output-client.c',
-  'pointer.c',
-  'pointer-client.c',
   'region.c',
-  'seat.c',
-  'shell.c',
-  'shell-client.c',
-  'shell-surface.c',
   'surface-state.c',
   'surface.c',
-  'xdg-output.c',
   'xdg-surface.c',
   'xdg-toplevel.c',
   'xdg-shell-desktop.c',
   'xdg-shell-desktop-client.c',
-  'zxdg-output-manager.c',
 ]
 
 
 dependencies = [
-  dependency('wayland-server'),
-  dependency('libinput'),
-  dependency('libudev'),
+  wayland_server_dep,
+  libinput_dep,
+  libudev_dep,
 ]
 
 scanner = dependency('wayland-scanner')
