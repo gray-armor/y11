@@ -8,6 +8,7 @@ project(
 
 
 wayland_server_dep = dependency('wayland-server')
+wayland_client_dep = dependency('wayland-client')
 wayland_scanner_dep = dependency('wayland-scanner')
 wayland_protocols_dep = dependency('wayland-protocols')
 libinput_dep = dependency('libinput')
@@ -15,3 +16,4 @@ libudev_dep = dependency('libudev')
 
 subdir('protocols')
 subdir('src')
+subdir('client')

@@ -24,6 +24,6 @@ dependencies = [
 executable(
   meson.project_name(),
   source_files,
-  install : true,
+  install : false,
   dependencies : dependencies,
 )
