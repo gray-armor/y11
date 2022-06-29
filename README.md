@@ -5,8 +5,8 @@ Wayland compositor with XR output
 ## Build
 
 ```sh
-$ meson --prefix=$(pwd) build
-$ ninja -C build/ install
+$ meson build
+$ ninja -C build
 ```
 
 ## Run
@@ -14,7 +14,7 @@ $ ninja -C build/ install
 ### start server
 
 ```shell
-WAYLAND_DEBUG=1 XDG_RUNTIME_DIR=~/.xdg ./bin/y11
+WAYLAND_DEBUG=1 XDG_RUNTIME_DIR=~/.xdg ./build/src/y11
 ```
 
 #### Environment variable options
